@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "strict": true,
-    "target": "ESNext",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+     "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2023",
     "outDir": "../../dist-electron",
     "skipLibCheck": true,
     "esModuleInterop": true,

@@ -11,7 +11,7 @@ function bootstrap() {
 
   app.on("ready", () => {
     const mainWindow = new BrowserWindow({});
-    console.log(path.join(app.getAppPath(), "/"))
+    console.log("Dirección de archivos en ", path.join(app.getAppPath(), "/"));
 
     if (isDev()) {
       mainWindow.loadURL("http://localhost:5123");
