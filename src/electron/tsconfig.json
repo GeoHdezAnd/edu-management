@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "../../dist-electron",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true, // ✅ Permite imports con .ts
+    "rewriteRelativeImportExtensions": true // ✅ ¡La clave! Convierte .ts → .js
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
+}

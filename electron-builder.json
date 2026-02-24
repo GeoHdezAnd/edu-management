@@ -1,0 +1,15 @@
+{
+  "appId": "com.n-matrus.electron-edu",
+  "files": ["dist-electron", "dist-react"],
+  "icon": "./icon-edu.png",
+  "mac": {
+    "target": "dmg"
+  },
+  "linux": {
+    "target": "AppImage",
+    "category": "Utility"
+  },
+  "win": {
+    "target": ["portable", "msi"]
+  }
+}
