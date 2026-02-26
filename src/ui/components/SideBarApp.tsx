@@ -6,7 +6,7 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
-} from "../../ui/sidebar";
+} from "./ui/sidebar";
 import { Users, GraduationCap, BookOpen, Calendar, Settings } from "lucide-react";
 import { NavLink } from "react-router";
 
@@ -14,7 +14,7 @@ const NAVIGATION_ITEMS = {
   studentManagement: {
     label: "Gestión alumnado",
     items: [
-      { label: "Estudiantes", href: "/students", icon: Users },
+      { label: "Grupos", href: "/groups", icon: Users },
       { label: "Matrículas", href: "/enrollments", icon: GraduationCap },
       { label: "Cursos", href: "/courses", icon: BookOpen },
     ],
@@ -22,8 +22,8 @@ const NAVIGATION_ITEMS = {
   academicManagement: {
     label: "Gestión académica",
     items: [
+      { label: "Personal", href: "/staff", icon: Users },
       { label: "Calendario", href: "/calendar", icon: Calendar },
-      { label: "Grupos", href: "/groups", icon: Users },
     ],
   },
   configuration: {

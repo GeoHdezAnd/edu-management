@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "strict": true,
-     "module": "ESNext",
+    "module": "ESNext",
     "moduleResolution": "bundler",
     "target": "ES2023",
     "outDir": "../../dist-electron",
@@ -11,6 +11,6 @@
     "allowImportingTsExtensions": true, // ✅ Permite imports con .ts
     "rewriteRelativeImportExtensions": true // ✅ ¡La clave! Convierte .ts → .js
   },
-  "include": ["**/*.ts"],
+  "include": ["**/*.ts", "server/prisma/seed.ts"],
   "exclude": ["node_modules"]
 }

@@ -1,0 +1,200 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+
+// Tabla principal para todos los tipos de personas
+model Person {
+  id              Int              @id @default(autoincrement())
+  firstName       String           // Nombre
+  lastName        String           // Apellido paterno
+  birthDate       DateTime?        // Fecha de nacimiento
+  curp            String?          @unique // CURP (único)
+  email           String?          @unique
+  phone           String?
+  address         String?          // Dirección completa
+  gender          String?          // Hombre || Mujer
+  personType      PersonType       @relation(fields: [personTypeId], references: [id])
+  personTypeId    Int
+  
+  // Relaciones específicas por tipo
+  student         Student?
+  employee        Employee?
+  emergencyContact EmergencyContact?
+  
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  @@map("persons")
+}
+
+// Catálogo de tipos de persona (alumno, docente, director, etc.)
+model PersonType {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique // "ALUMNO", "DOCENTE", "DIRECTOR", "ADMINISTRATIVO", "CONTACTO_EMERGENCIA"
+  description String?
+  persons     Person[]
+  
+  @@map("person_types")
+}
+
+// Información específica de estudiantes
+model Student {
+  id                    Int               @id @default(autoincrement())
+  person                Person            @relation(fields: [personId], references: [id])
+  personId              Int               @unique
+  enrollmentNumber      String            @unique // Número de control o matrícula
+  currentGroup          Group?            @relation(fields: [currentGroupId], references: [id])
+  currentGroupId        Int?
+  enrollmentDate        DateTime          @default(now())
+  status                String            @default("ACTIVO") // ACTIVO || INACTIVO || BAJA
+  
+  // Relaciones
+  emergencyContacts     EmergencyContact[]
+  attendances           Attendance[]
+  studentHistory        StudentGroupHistory[]
+  
+  @@map("students")
+}
+
+// Historial de grupos del estudiante (para seguimiento académico)
+model StudentGroupHistory {
+  id          Int      @id @default(autoincrement())
+  student     Student  @relation(fields: [studentId], references: [id])
+  studentId   Int
+  group       Group    @relation(fields: [groupId], references: [id])
+  groupId     Int
+  period      String   // "2024A", "2024B", etc.
+  startDate   DateTime
+  endDate     DateTime?
+  status      String   // "INSCRITO", "REPETIDOR", "BAJA"
+  
+  @@unique([studentId, groupId, period])
+  @@map("student_group_history")
+}
+
+// Información de empleados (docentes, directores, administrativos)
+model Employee {
+  id                Int             @id @default(autoincrement())
+  person            Person          @relation(fields: [personId], references: [id])
+  personId          Int             @unique
+  employeeNumber    String          @unique
+  employeeType      EmployeeType    @relation(fields: [employeeTypeId], references: [id])
+  employeeTypeId    Int
+  hireDate          DateTime        @default(now())
+  status            String?       // Activo, Inactivo
+  specialization    String?         // Especialidad (para docentes)
+  
+  // Relaciones
+  advisorGroups     Group[]         // Grupos donde es asesor
+  subjectGroups     SubjectGroup[]
+  
+  @@map("employees")
+}
+
+// Tipo de empleado
+model EmployeeType {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique // "DOCENTE", "DIRECTOR", "ADMINISTRATIVO"
+  description String?
+  employees   Employee[]
+  
+  @@map("employee_types")
+}
+
+// Contactos de emergencia
+model EmergencyContact {
+  id            Int      @id @default(autoincrement())
+  person        Person   @relation(fields: [personId], references: [id])
+  personId      Int      @unique // Cada contacto de emergencia es una persona
+  student       Student  @relation(fields: [studentId], references: [id])
+  studentId     Int
+  relationship  String   // "PADRE", "MADRE", "TUTOR", etc.
+  isAuthorized  Boolean  @default(true) // Si está autorizado para recoger al alumno
+  
+  @@map("emergency_contacts")
+}
+
+// Grupos escolares
+model Group {
+  id              Int          @id @default(autoincrement())
+  name            String       // Ejemplo: "1A", "2B", etc.
+  grade           Int          // 1-6 (semestre)
+  schoolYear      String       // "2024-2025"
+  period          String       // "A" o "B"
+  academicProgram String?      // Programa académico (si hay diferentes)
+  
+  // Asesor del grupo (puede ser docente o director)
+  advisor         Employee?    @relation(fields: [advisorId], references: [id])
+  advisorId       Int?
+  
+  // Capacidad del grupo
+  capacity        Int          @default(35)
+  
+  // Relaciones
+  students        Student[]    // Estudiantes actuales
+  studentHistory  StudentGroupHistory[]
+  subjects        SubjectGroup[]
+  
+  @@unique([name, grade, schoolYear, period])
+  @@map("groups")
+}
+
+// Materias
+model Subject {
+  id              Int               @id @default(autoincrement())
+  code            String            @unique
+  name            String
+  description     String?
+  credits         Int?
+  grade           Int?              // Semestre en que se cursa típicamente
+  
+  // Relaciones
+  groups          SubjectGroup[]
+  
+  @@map("subjects")
+}
+
+// Asignación de materias a grupos
+model SubjectGroup {
+  id              Int               @id @default(autoincrement())
+  subject         Subject           @relation(fields: [subjectId], references: [id])
+  subjectId       Int
+  group           Group             @relation(fields: [groupId], references: [id])
+  groupId         Int
+  teacher         Employee?         @relation(fields: [teacherId], references: [id])
+  teacherId       Int?
+  hoursPerWeek    Int?
+  
+  // Relación con asistencias (si se necesita por materia)
+  attendances     Attendance[]
+  
+  @@unique([subjectId, groupId])
+  @@map("subject_groups")
+}
+
+// Asistencia
+model Attendance {
+  id              Int           @id @default(autoincrement())
+  student         Student       @relation(fields: [studentId], references: [id])
+  studentId       Int
+  subjectGroup    SubjectGroup? @relation(fields: [subjectGroupId], references: [id])
+  subjectGroupId  Int?
+  date            DateTime      @default(now())
+  status          String? // "PRESENTE", "AUSENTE", "RETARDO", "JUSTIFICADO"
+  justification   String?
+  registeredBy    Int?          // ID del empleado que registró
+  
+  @@unique([studentId, subjectGroupId, date])
+  @@map("attendances")
+}
+
+
